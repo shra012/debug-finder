@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: debug-finder
+debug-finder:
+  servers:
+      - name: QA01
+        hostname: qa01.shra012.com
+        debug-ports:
+          - 5005
+      - name: QA02
+        hostname: qa01.shra012.com
+        debug-ports:
+          - 8080
+
+logging:
+  level:
+    com.mig.debugfinder: DEBUG
+    root: INFO
+
+info:
+  app:
+    name: Debug Port Finder Service
+    description: Service to find users of debug ports
+    version: 1.0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
