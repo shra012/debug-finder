@@ -40,7 +40,7 @@ public class DebugPortFinderService {
             Map<Integer, String> portStatus = new LinkedHashMap<>();
             if (server.getDebugPorts() == null) continue;
             for (Integer port : server.getDebugPorts()) {
-                String info = getRemoteUserForPort(server.getHostname(), port);
+                String info = getRemoteUserForPort(server, port);
                 portStatus.put(port, info != null ? info : "Not in use");
             }
             result.put(server.getName(), portStatus);
@@ -52,17 +52,24 @@ public class DebugPortFinderService {
      * SSH into the remote host and run a single lsof command.
      * It checks for an established connection (indicated by "->") or returns the local user.
      */
-    private String getRemoteUserForPort(String hostname, int port) {
-        if (hostname == null || hostname.isEmpty()) return "No hostname";
+    private String getRemoteUserForPort(Server server, int port) {
+        if (server.getHostname() == null || server.getHostname().isEmpty()) return "No hostname";
 
         Session session = null;
         ChannelExec channel = null;
         try {
             JSch jsch = new JSch();
-            jsch.addIdentity("");
-            String sshUser = "root";
-            session = jsch.getSession(sshUser, hostname, 22);
+            String sshUser = server.getSshUser() != null ? server.getSshUser() : "root";
+            String sshKeyPath = server.getSshKeyPath();
+            String sshPassword = server.getSshPassword();
+            if (sshKeyPath != null && !sshKeyPath.isEmpty()) {
+                jsch.addIdentity(sshKeyPath);
+            }
+            session = jsch.getSession(sshUser, server.getHostname(), 22);
             session.setConfig("StrictHostKeyChecking", "no");
+            if (sshPassword != null && !sshPassword.isEmpty()) {
+                session.setPassword(sshPassword);
+            }
             session.connect(5000);
 
             // Use a single lsof command to get connection details
@@ -95,7 +102,7 @@ public class DebugPortFinderService {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Failed to check port {} on {}: {}", port, hostname, e.getMessage());
+            logger.warn("Failed to check port {} on {}: {}", port, server.getHostname(), e.getMessage());
             return "Error: " + e.getMessage();
         } finally {
             if (channel != null) channel.disconnect();

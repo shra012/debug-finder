@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.0'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'war'
 }
 
 group = 'org.example'
@@ -31,3 +32,34 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar {
+    enabled = false
+}
+bootWar {
+    enabled = true
+}
+
+// Task to build frontend and copy to static resources
+// Assumes Node.js and npm are installed
+
+def frontendDir = "$rootDir/frontend"
+def frontendBuildDir = "$frontendDir/dist"
+def backendStaticDir = "$projectDir/src/main/resources/static"
+
+task buildFrontend(type: Exec) {
+    workingDir frontendDir
+    commandLine 'npm', 'install'
+}
+
+task buildFrontendProd(type: Exec, dependsOn: buildFrontend) {
+    workingDir frontendDir
+    commandLine 'npm', 'run', 'build'
+}
+
+task copyFrontendToStatic(type: Copy, dependsOn: buildFrontendProd) {
+    from frontendBuildDir
+    into backendStaticDir
+}
+
+processResources.dependsOn copyFrontendToStatic

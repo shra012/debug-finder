@@ -7,10 +7,14 @@ debug-finder:
         hostname: qa01.shra012.com
         debug-ports:
           - 5005
+        ssh-user: root
+        ssh-password: 'passW0rd'
       - name: QA02
         hostname: qa01.shra012.com
         debug-ports:
           - 8080
+        ssh-user: root
+        ssh-password: 'passW0rd'
 
 logging:
   level:
