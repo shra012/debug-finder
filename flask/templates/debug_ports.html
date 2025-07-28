@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Ports Status</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center">Debug Ports Status</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Server</th>
+                <th>Port</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for server, ports in result.items() %}
+            {% for port, status in ports.items() %}
+            <tr>
+                <td>{{ server }}</td>
+                <td>{{ port }}</td>
+                <td>{{ status }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
